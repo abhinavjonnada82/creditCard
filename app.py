@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 import google.cloud
 import firebase_admin
 from firebase_admin import credentials,firestore
-from random import randint
+
 
 
 config = {
@@ -80,6 +80,12 @@ class CrudInAction(CrudBase):
                 print("Transaction Successfull")
             else:
                 print("Insufficient Funds!")
+            totData = {
+                u'totVal':b
+            }
+
+            store.collection(nameUser).document(u'total').set(totData)
+
 
         elif (actionOption == 'View'):
             count = 0
@@ -90,6 +96,20 @@ class CrudInAction(CrudBase):
                 lineDivider = ('------------------------')
                 print(lineDivider)
             print("Total number of transactions: {}".format(count))
+            docTot = store.collection(nameUser).document(u'total').get()
+            dataDict = docTot.to_dict()
+            print('Total credit available: {}'.format(dataDict['totVal']))
+
+
+        elif (actionOption == 'Pay'):
+            date = input("Enter Date: \n")
+            payment = int(input("Enter amount to be payed: $ \n"))
+            docTot = store.collection(nameUser).document(u'total')
+            dataDict = docTot.get().to_dict()
+            totalCredit=(dataDict['totVal'])
+            currentTotal = totalCredit - payment
+            docTot.update({u'total': currentTotal})
+
 
 # bridge function
 def openBridge(user):
@@ -166,15 +186,14 @@ class MenuHandlerAction(BaseMenu):
 
 
         elif (optionsHolder == "SignUp"):
-            email = self.emailEntry()
-            password = self.passwordEntry()
 
-            print ("Creating a new account!")
-            print ('Account Created')
-            print("You're new credit card: ")
-            ccNum = 0
-            user = auth.create_user_with_email_and_password(email, password)
-            openBridge(user)
+                email = self.emailEntry()
+                password = self.passwordEntry()
+                print ("Creating a new account!")
+                print ('Account Created')
+                user = auth.create_user_with_email_and_password(email, password)
+                print('SignUp Successful')
+                openBridge(user)
 
 
         elif (optionsHolder == "ForgotPassword"):
