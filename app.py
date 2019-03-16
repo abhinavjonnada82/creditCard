@@ -59,17 +59,37 @@ class CrudInAction(CrudBase):
 
         if (actionOption == 'Make'):
 
-
-            expenseDate = input("Enter Date: \n")
-            expenseReason = input("Enter your expense: \n")
-            expenseprice = input("Enter Price: $ \n")
+            lis2 = []
+            date = input("Enter Date: \n")
+            reason = input("Enter your expense: \n")
+            price = int(input("Enter Price: $ \n"))
 
             data = {
-                "Date": expenseDate,
-                "ExpenseType": expenseReason,
-                "ExpensePrice": expenseprice,
+                "Date": date,
+                "ExpenseType": reason,
+                "ExpensePrice": price,
             }
-            store.collection(nameUser).add(data)
+
+            docs = store.collection(nameUser).where(u'ExpensePrice', u'>=', 0).get()
+            for doc in docs:
+                tmpDict = (doc.to_dict())
+                lis2.append(tmpDict['ExpensePrice'])
+            b = sum(lis2)
+            if b <= 400:
+                store.collection(nameUser).add(data)
+                print("Transaction Successfull")
+            else:
+                print("Insufficient Funds!")
+
+        elif (actionOption == 'View'):
+            count = 0
+            docs = store.collection(nameUser).where(u'ExpensePrice', u'>=',0).get()
+            for doc in docs:
+                count = count + 1
+                print(doc.to_dict())
+                lineDivider = ('------------------------')
+                print(lineDivider)
+            print("Total number of transactions: {}".format(count))
 
 # bridge function
 def openBridge(user):
@@ -78,13 +98,6 @@ def openBridge(user):
         temp = value['users'][0]['email']
         tmp = temp.split('@')
         nameUser = tmp[0]
-        doc_ref = store.collection(nameUser).get()
-    # try:
-    #     docs = doc_ref.get()
-    #     for doc in docs:
-    #         print(u'Doc Data:{}'.format(doc.to_dict()))
-    # except google.cloud.exceptions.NotFound:
-    #     print(u'Missing data')
 
     print("""1.) Make Transactions: Make 2.) Pay your bill: Pay
                       3.) View your overall expenses: View 5.) Exit application: Logout """)
@@ -93,13 +106,13 @@ def openBridge(user):
     crud = CrudInAction("crud")
     crud.checkOptionEntered(actionOption, nameUser, user)
 
-        # Create Credit Card
-
-def createCC(self):
-    n = 16
-    range_start = 10 ** (n - 1)
-    range_end = (10 ** n) - 1
-    return randint(range_start, range_end)
+ # Create Credit Card
+#
+# def createCC(self):
+#     n = 16
+#     range_start = 10 ** (n - 1)
+#     range_end = (10 ** n) - 1
+#     return randint(range_start, range_end)
 
 
 
