@@ -44,41 +44,52 @@ class CreditCard:
     def display(self):
         print("Net available balance {}".format(self.balance))
 
+class CrudBase(ABC):
+    def __init__(self, para):
+        self.para = para
+
+    def checkOptionEntered(self, para0, para1, para2):
+        raise NotImplementedError("Subclass must implement this abstract method")
+
+class CrudInAction(CrudBase):
+    def __init__(self, f):
+        super().__init__(f)
+
+    def checkOptionEntered(self, actionOption, nameUser, user):
+
+        if (actionOption == 'Make'):
+
+
+            expenseDate = input("Enter Date: \n")
+            expenseReason = input("Enter your expense: \n")
+            expenseprice = input("Enter Price: $ \n")
+
+            data = {
+                "Date": expenseDate,
+                "ExpenseType": expenseReason,
+                "ExpensePrice": expenseprice,
+            }
+            store.collection(nameUser).add(data)
+
 # bridge function
-def openBridge(user, ccNum):
-    if user and ccNum == 1:
+def openBridge(user):
+    if user:
         value = auth.get_account_info(user['idToken'])
         temp = value['users'][0]['email']
         tmp = temp.split('@')
         nameUser = tmp[0]
-        # can be improved
         doc_ref = store.collection(nameUser).get()
-        for doc in doc_ref:
-            print(u'Doc Data:{}'.format(doc.to_dict()))
+    # try:
+    #     docs = doc_ref.get()
+    #     for doc in docs:
+    #         print(u'Doc Data:{}'.format(doc.to_dict()))
+    # except google.cloud.exceptions.NotFound:
+    #     print(u'Missing data')
 
-        print("Hello {}".format(nameUser))
-
-    elif user and ccNum == 0:
-        value = auth.get_account_info(user['idToken'])
-        temp = value['users'][0]['email']
-        tmp = temp.split('@')
-        nameUser = tmp[0]
-        # can be improved
-        print("Hello {}".format(nameUser))
-        valCC = createCC()
-        print(valCC)
-        doc_ref = store.collection(nameUser).document(str(ccNum))
-
-    try:
-        docs = doc_ref.get()
-        for doc in docs:
-            print(u'Doc Data:{}'.format(doc.to_dict()))
-    except google.cloud.exceptions.NotFound:
-        print(u'Missing data')
-
-    print("""1.) Make Transactions 2.) Pay your bill: Pay
+    print("""1.) Make Transactions: Make 2.) Pay your bill: Pay
                       3.) View your overall expenses: View 5.) Exit application: Logout """)
     actionOption = input("Enter your choice of entry: ")
+
     crud = CrudInAction("crud")
     crud.checkOptionEntered(actionOption, nameUser, user)
 
@@ -138,8 +149,7 @@ class MenuHandlerAction(BaseMenu):
             password = self.passwordEntry()
             user = auth.sign_in_with_email_and_password(email, password)
             print ('Login Successful')
-            ccNum = 1
-            openBridge(user, ccNum)
+            openBridge(user)
 
 
         elif (optionsHolder == "SignUp"):
@@ -151,7 +161,7 @@ class MenuHandlerAction(BaseMenu):
             print("You're new credit card: ")
             ccNum = 0
             user = auth.create_user_with_email_and_password(email, password)
-            openBridge(user, ccNum)
+            openBridge(user)
 
 
         elif (optionsHolder == "ForgotPassword"):
