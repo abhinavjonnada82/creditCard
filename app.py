@@ -1,6 +1,11 @@
 import pyrebase
 import argparse
 from abc import ABC, abstractmethod
+import google.cloud
+import firebase_admin
+from firebase_admin import credentials,firestore
+from random import randint
+
 
 config = {
   "apiKey": "AIzaSyAmkl4n9DuY5cTAUVKlZwomKQyIV3BY7Ms",
@@ -12,6 +17,9 @@ config = {
 
 firebase = pyrebase.initialize_app(config)
 auth = firebase.auth()
+cred = credentials.Certificate("./serviceAccountKey.json")
+app = firebase_admin.initialize_app(cred)
+store = firestore.client()
 
 
 
@@ -37,20 +45,51 @@ class CreditCard:
         print("Net available balance {}".format(self.balance))
 
 # bridge function
-def openBridge(user):
-    if user:
+def openBridge(user, ccNum):
+    if user and ccNum == 1:
+        value = auth.get_account_info(user['idToken'])
+        temp = value['users'][0]['email']
+        tmp = temp.split('@')
+        nameUser = tmp[0]
+        # can be improved
+        doc_ref = store.collection(nameUser).get()
+        for doc in doc_ref:
+            print(u'Doc Data:{}'.format(doc.to_dict()))
+
+        print("Hello {}".format(nameUser))
+
+    elif user and ccNum == 0:
         value = auth.get_account_info(user['idToken'])
         temp = value['users'][0]['email']
         tmp = temp.split('@')
         nameUser = tmp[0]
         # can be improved
         print("Hello {}".format(nameUser))
+        valCC = createCC()
+        print(valCC)
+        doc_ref = store.collection(nameUser).document(str(ccNum))
 
-        print("""1.) Make Transactions 2.) Pay your bill: Pay
-                          3.) Update your expenses: Update 4.) View your overall expenses: View 5.) Exit application: Logout """)
-        actionOption = input("Enter your choice of entry: ")
-        crud = CrudInAction("crud")
-        crud.checkOptionEntered(actionOption, nameUser, user)
+    try:
+        docs = doc_ref.get()
+        for doc in docs:
+            print(u'Doc Data:{}'.format(doc.to_dict()))
+    except google.cloud.exceptions.NotFound:
+        print(u'Missing data')
+
+    print("""1.) Make Transactions 2.) Pay your bill: Pay
+                      3.) View your overall expenses: View 5.) Exit application: Logout """)
+    actionOption = input("Enter your choice of entry: ")
+    crud = CrudInAction("crud")
+    crud.checkOptionEntered(actionOption, nameUser, user)
+
+        # Create Credit Card
+
+def createCC(self):
+    n = 16
+    range_start = 10 ** (n - 1)
+    range_end = (10 ** n) - 1
+    return randint(range_start, range_end)
+
 
 
 
@@ -88,6 +127,8 @@ class MenuHandlerAction(BaseMenu):
         password = input("Please enter your password: \n")
         return password
 
+
+
     # based on user entry performs suitable authentication
     def menuHandler(self, optionsList):
         optionsHolder = optionsList.pop(0)
@@ -95,23 +136,23 @@ class MenuHandlerAction(BaseMenu):
         if (optionsHolder == "Login"):
             email = self.emailEntry()
             password = self.passwordEntry()
-            try:
-                user = auth.sign_in_with_email_and_password(email, password)
-                print ('Login Successful')
-                openBridge(user)
-            except:
-                print ('Login Unsuccessful, please check your credentials!')
+            user = auth.sign_in_with_email_and_password(email, password)
+            print ('Login Successful')
+            ccNum = 1
+            openBridge(user, ccNum)
+
 
         elif (optionsHolder == "SignUp"):
             email = self.emailEntry()
             password = self.passwordEntry()
-            try:
-                print ("Creating a new account!")
-                user = auth.create_user_with_email_and_password(email, password)
-                print ('Account Created')
-                #letUserIn(user)
-            except:
-                print ('User already exists, please check your credentials!')
+
+            print ("Creating a new account!")
+            print ('Account Created')
+            print("You're new credit card: ")
+            ccNum = 0
+            user = auth.create_user_with_email_and_password(email, password)
+            openBridge(user, ccNum)
+
 
         elif (optionsHolder == "ForgotPassword"):
             try:

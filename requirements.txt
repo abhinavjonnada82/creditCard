@@ -1,2 +1,4 @@
 pyrebase
 argparse
+google-cloud-firestore
+firebase_admin
