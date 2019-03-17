@@ -8,23 +8,32 @@ Credit card functions as follows: 
 	• e.g., asking for the total outstanding balance 15, 28, or 29 days after opening will give the outstanding balance, but asking for balance 30 days after opening will give the outstanding balance plus the accrued interest.
 
 The software does the following:
-	Create an account (e.g. opening a new credit card)
-	Keep track of charges (e.g. card swipes)
+	
+	Create an account (e.g. opening a new credit card); Achieved using by making an FireBase account
+	
+	Keep track of charges (e.g. card swipes) 
+	
 	Keep track of payments
+	
 	Provide the total outstanding balance as of any given day
 
 Built using Python and Firebase.
+
 -> ArgParse, Firebase admin and Pyrebase modules
+
 -> Firebase for authentication and database
 
 1.) Setup a virtual environment
+
 2.) PIP install pyrebase, argparse, google-cloud-firestore and firebase-admin
+
 3.) Just install PyCharm IDE, open the folder does the above tasks automatically
+
 4.) Run python app.py -p SignUp or Login
 
 Sample User Login: m@m.com | password: test123
 
-Video Link: 
+Video Link: https://drive.google.com/open?id=1GaTnaqgYai_djEPMaLVxup6MAurzCcIa
 
 Test Scenario 1
 	• A customer opens a credit card with a $1,000.00 limit at a 35% APR.
