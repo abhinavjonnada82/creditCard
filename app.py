@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 import google.cloud
 import firebase_admin
 from firebase_admin import credentials,firestore
+import sys
 
 
 
@@ -21,37 +22,30 @@ cred = credentials.Certificate("./serviceAccountKey.json")
 app = firebase_admin.initialize_app(cred)
 store = firestore.client()
 
+class HelperBase():
+    def __init__(self, para):
+        self.para = para
+
+    #helper function
+    def responseHolderfun(self, actionOption, nameUser, user):
+        responseHolder = input("Do you want to {} once more? Y/N ".format(actionOption))
+        while True:
+            if (responseHolder == ('Y' or 'y')):
+                action1 = ActionCenter("action1")
+                action1.checkOptionEntered(actionOption, nameUser, user)
+            else:
+                break
+        openBridge(user)
 
 
-class CreditCard:
-    def __init__(self):
-        self.balance = 0
-        print("Hello !! Welcome to your Checkings A/C")
-
-    def deposit(self):
-        amount = float(input("Enter amount to payed: "))
-        self.balance += amount
-        print("Amount Deposited {}".format(amount))
-
-    def withdraw(self):
-        amount = float(input("Enter amount to be Withdrawed: "))
-        if self.balance >= amount:
-            self.balance-= amount
-            print(" You Withdrawed: {}".format(amount))
-        else:
-            print("Insufficient balance")
-
-    def display(self):
-        print("Net available balance {}".format(self.balance))
-
-class CrudBase(ABC):
+class ActionBase(ABC):
     def __init__(self, para):
         self.para = para
 
     def checkOptionEntered(self, para0, para1, para2):
         raise NotImplementedError("Subclass must implement this abstract method")
 
-class CrudInAction(CrudBase):
+class ActionCenter(ActionBase):
     def __init__(self, f):
         super().__init__(f)
 
@@ -90,9 +84,11 @@ class CrudInAction(CrudBase):
             }
 
             store.collection(nameUser).document(u'total').set(totData)
+            holder = HelperBase("holder")
+            holder.responseHolderfun(actionOption, nameUser, user)
 
 
-        elif (actionOption == 'View'):
+        if (actionOption == 'View'):
             dateEntry = int(input("Enter only date (03/dd/2019): \n"))
             if (dateEntry == 30):
                 count = 0
@@ -130,14 +126,18 @@ class CrudInAction(CrudBase):
                 tmpDict = (docTot.to_dict())
                 outBal = tmpDict['OutStanding']
                 print("Intrest at end of 30th day is $ {}".format(sum(valIs) + outBal))
+
             else:
                 docs1 = store.collection(nameUser).document(u'total').get()
                 tmpDict = (docs1.to_dict())
                 outBal = tmpDict['OutStanding']
                 print("Intrest on {} March 2019 is $ {}".format(dateEntry, outBal))
 
+            holder = HelperBase("holder")
+            holder.responseHolderfun(actionOption, nameUser, user)
 
-        elif (actionOption == 'Pay'):
+
+        if (actionOption == 'Pay'):
             lis2 = []
             date = int(input("Enter only date (03/dd/2019): \n"))
             payment = int(input("Enter amount to be payed: $ \n"))
@@ -159,6 +159,13 @@ class CrudInAction(CrudBase):
             currentTotal = 1000 - b
             docTot.update({u'totVal': currentTotal, u'Date': date, u'OutStanding': b})
             print("Your available credit is $ {}".format(currentTotal))
+            holder = HelperBase("holder")
+            holder.responseHolderfun(actionOption, nameUser, user)
+
+        # EXIT
+        if (actionOption == 'Logout'):
+            print("Bye....... see you soon! :) ")
+            sys.exit()
 
 
 
@@ -174,8 +181,8 @@ def openBridge(user):
                       3.) View your overall expenses: View 5.) Exit application: Logout """)
     actionOption = input("Enter your choice of entry: ")
 
-    crud = CrudInAction("crud")
-    crud.checkOptionEntered(actionOption, nameUser, user)
+    action = ActionCenter("action")
+    action.checkOptionEntered(actionOption, nameUser, user)
 
  # Create Credit Card
 #
@@ -229,11 +236,13 @@ class MenuHandlerAction(BaseMenu):
         optionsHolder = optionsList.pop(0)
 
         if (optionsHolder == "Login"):
-            email = self.emailEntry()
-            password = self.passwordEntry()
-            user = auth.sign_in_with_email_and_password(email, password)
-            print ('Login Successful')
-            openBridge(user)
+
+                email = self.emailEntry()
+                password = self.passwordEntry()
+                user = auth.sign_in_with_email_and_password(email, password)
+                print ('Login Successful')
+                openBridge(user)
+
 
 
         elif (optionsHolder == "SignUp"):
@@ -267,5 +276,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     optionsList = args.optionsAvail
+# object
     menu = MenuHandlerAction("menu")
     menu.menuHandler(optionsList)
