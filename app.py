@@ -37,6 +37,16 @@ class HelperBase():
                 break
         openBridge(user)
 
+    # helper function
+    def queryTotalDoc(self, nameUser):
+        # Query for total Document
+        docs = store.collection(nameUser).document(u'total')
+        return docs
+
+    def queryAutoIDDoc(self, nameUser):
+        # Query for Document with AutoID
+        docs = store.collection(nameUser)
+        return docs
 
 class ActionBase(ABC):
     def __init__(self, para):
@@ -50,20 +60,23 @@ class ActionCenter(ActionBase):
         super().__init__(f)
 
     def checkOptionEntered(self, actionOption, nameUser, user):
+        holder = HelperBase("holder")
 
+# User makes a transaction by manually entering data
         if (actionOption == 'Make'):
 
             lis2 = []
             date = int(input("Enter only date (03/dd/2019): \n"))
             reason = input("Enter your expense: \n")
             price = int(input("Enter Price: $ \n"))
-            # Query to get prices of transactions
-            docs = store.collection(nameUser).document(u'total').get()
+            # Query to get outstanding balance of current transactions
+            docs = holder.queryTotalDoc(nameUser).get()
+            # converting object to dictionary and using key value pairs to get OutStanding bal.
             tmpDict = (docs.to_dict())
             lis2.append(tmpDict['OutStanding'])
-            b = sum(lis2) + price
-            creditAvail = 1000 - b #update outstanding
-            # setting credit limit to $ 400 for simplicity
+            b = sum(lis2) + price # current outstanding balance
+            creditAvail = 1000 - b # updated credit limit
+            # setting credit limit to $ 1000 for simplicity and makin sure user transactions are limited to $1000
             if creditAvail != 0:
                 data = {
                     u'Date': date,
@@ -71,7 +84,8 @@ class ActionCenter(ActionBase):
                     u'ExpensePrice': price,
                     u'OutStanding': b
                 }
-                store.collection(nameUser).add(data)
+                # Query for Document with AutoID
+                holder.queryAutoIDDoc(nameUser).add(data)
                 print("Transaction Successfull")
             else:
                 print("Insufficient Funds!")
@@ -82,9 +96,9 @@ class ActionCenter(ActionBase):
                 u'Date': date,
                 u'OutStanding': b
             }
-
-            store.collection(nameUser).document(u'total').set(totData)
-            holder = HelperBase("holder")
+            # query to update values using queryTotalDoc method
+            holder.queryTotalDoc(nameUser).set(totData)
+            # method call to know if user wants perform same action again
             holder.responseHolderfun(actionOption, nameUser, user)
 
 
@@ -94,11 +108,11 @@ class ActionCenter(ActionBase):
                 count = 0
                 lis = []
                 valIs = []
-                docs = store.collection(nameUser).where(u'Flag', u'==',True).get()
+                docs =  holder.queryAutoIDDoc(nameUser).where(u'Flag', u'==',True).get()
                 for doc in docs:
                     tmp = (doc.to_dict())
                     lis.append(tmp['Date'])
-                docs = store.collection(nameUser).where(u'Flag', u'==', True).get()
+                docs =  holder.queryAutoIDDoc(nameUser).where(u'Flag', u'==', True).get()
                 for doc2 in docs:
                     tmp1 = (doc2.to_dict())
                     x= tmp1['OutStanding']
@@ -122,13 +136,13 @@ class ActionCenter(ActionBase):
                             valIs.append(t)
                             break
 
-                docTot = store.collection(nameUser).document(u'total').get()
+                docTot = holder.queryTotalDoc(nameUser).document(u'total').get()
                 tmpDict = (docTot.to_dict())
                 outBal = tmpDict['OutStanding']
                 print("Intrest at end of 30th day is $ {}".format(sum(valIs) + outBal))
 
             else:
-                docs1 = store.collection(nameUser).document(u'total').get()
+                docs1 = holder.queryTotalDoc(nameUser).document(u'total').get()
                 tmpDict = (docs1.to_dict())
                 outBal = tmpDict['OutStanding']
                 print("Intrest on {} March 2019 is $ {}".format(dateEntry, outBal))
