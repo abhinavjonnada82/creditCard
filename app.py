@@ -64,19 +64,18 @@ class CrudInAction(CrudBase):
             reason = input("Enter your expense: \n")
             price = int(input("Enter Price: $ \n"))
             # Query to get prices of transactions
-            docs = store.collection(nameUser).where(u'ExpensePrice', u'>=', 0).get()
-            for doc in docs:
-                tmpDict = (doc.to_dict())
-                lis2.append(tmpDict['ExpensePrice'])
+            docs = store.collection(nameUser).document(u'total').get()
+            tmpDict = (docs.to_dict())
+            lis2.append(tmpDict['OutStanding'])
             b = sum(lis2) + price
-            outstand = 1000 - b #update outstanding
+            creditAvail = 1000 - b #update outstanding
             # setting credit limit to $ 400 for simplicity
-            if outstand != 0:
+            if creditAvail != 0:
                 data = {
                     u'Date': date,
                     u'ExpenseType': reason,
                     u'ExpensePrice': price,
-                    u'OutStanding': outstand
+                    u'OutStanding': b
                 }
                 store.collection(nameUser).add(data)
                 print("Transaction Successfull")
@@ -85,8 +84,9 @@ class CrudInAction(CrudBase):
 
             # updating total value
             totData = {
-                u'totVal':b,
-                u'Date': date
+                u'totVal':creditAvail,
+                u'Date': date,
+                u'OutStanding': b
             }
 
             store.collection(nameUser).document(u'total').set(totData)
@@ -94,43 +94,71 @@ class CrudInAction(CrudBase):
 
         elif (actionOption == 'View'):
             dateEntry = int(input("Enter only date (03/dd/2019): \n"))
-            if (dateEntry <= 29):
+            if (dateEntry == 30):
                 count = 0
-                docs = store.collection(nameUser).where(u'ExpensePrice', u'>=',0).get()
+                lis = []
+                valIs = []
+                docs = store.collection(nameUser).where(u'Flag', u'==',True).get()
                 for doc in docs:
-                    count = count + 1
-                    print(doc.to_dict())
-                    lineDivider = ('------------------------')
-                    print(lineDivider)
-                print("Total number of transactions: {}".format(count))
+                    tmp = (doc.to_dict())
+                    lis.append(tmp['Date'])
+                docs = store.collection(nameUser).where(u'Flag', u'==', True).get()
+                for doc2 in docs:
+                    tmp1 = (doc2.to_dict())
+                    x= tmp1['OutStanding']
+                    y= tmp1['Date']
+                    for i in range(len(lis)):
+                        if i == 0 and lis[i] == y:
+                            if len(lis) == 1:
+                                t = x * (0.35/365) * (30)
+                                valIs.append(t)
+                                break
+                            else:
+                                t = x * (0.35 / 365) * (30-lis[i+1])
+                                valIs.append(t)
+                                break
+                        elif i == len(lis)-1 and lis[i] == y:
+                            t = x * (0.35 / 365) * (30 - lis[i])
+                            valIs.append(t)
+                            break
+                        elif lis[i] == y:
+                            t = x * (0.35 / 365) * (lis[i+1]-lis[i])
+                            valIs.append(t)
+                            break
+
                 docTot = store.collection(nameUser).document(u'total').get()
-                dataDict = docTot.to_dict()
-                outBal = 1000 - dataDict['totVal']
-                print('Total outstanding balance: {}'.format(outBal))
+                tmpDict = (docTot.to_dict())
+                outBal = tmpDict['OutStanding']
+                print("Intrest at end of 30th day is $ {}".format(sum(valIs) + outBal))
             else:
-                docs = store.collection(nameUser).get()
-                for doc in docs:
-                    tmpDict = (doc.to_dict)
-                    x = (tmpDict['ExpensePrice'])
-                    y = 30 - (tmpDict['Date'])
-                    lineDivider = ('------------------------')
-                    print(lineDivider)
-
-
-
-
+                docs1 = store.collection(nameUser).document(u'total').get()
+                tmpDict = (docs1.to_dict())
+                outBal = tmpDict['OutStanding']
+                print("Intrest on {} March 2019 is $ {}".format(dateEntry, outBal))
 
 
         elif (actionOption == 'Pay'):
+            lis2 = []
             date = int(input("Enter only date (03/dd/2019): \n"))
             payment = int(input("Enter amount to be payed: $ \n"))
+            docs = store.collection(nameUser).where(u'ExpensePrice', u'>=', 0).get()
+            for doc in docs:
+                tmpDict = (doc.to_dict())
+                lis2.append(tmpDict['ExpensePrice'])
+            b = sum(lis2) - payment  # update outstanding
 
+            data = {
+                u'Date': date,
+                u'Payment': payment,
+                u'OutStanding': b
+            }
+            store.collection(nameUser).add(data)
+            print("Transaction Successfull")
+            print("Outstanding balance $ {}".format(b))
             docTot = store.collection(nameUser).document(u'total')
-            dataDict = docTot.get().to_dict()
-            totalCredit=(dataDict['totVal'])
-            currentTotal = totalCredit - payment
-            docTot.update({u'totVal': currentTotal, u'date': date})
-            print("Your outstanding balance is {}".format(currentTotal))
+            currentTotal = 1000 - b
+            docTot.update({u'totVal': currentTotal, u'Date': date, u'OutStanding': b})
+            print("Your available credit is $ {}".format(currentTotal))
 
 
 
