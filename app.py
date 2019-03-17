@@ -108,7 +108,7 @@ class CrudInAction(CrudBase):
             dataDict = docTot.get().to_dict()
             totalCredit=(dataDict['totVal'])
             currentTotal = totalCredit - payment
-            docTot.update({u'total': currentTotal})
+            docTot.update({u'totVal': currentTotal})
 
 
 # bridge function
