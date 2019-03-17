@@ -63,21 +63,21 @@ class CrudInAction(CrudBase):
             date = int(input("Enter only date (03/dd/2019): \n"))
             reason = input("Enter your expense: \n")
             price = int(input("Enter Price: $ \n"))
-
-            data = {
-                u'Date': date,
-                u'ExpenseType': reason,
-                u'ExpensePrice': price,
-            }
-
             # Query to get prices of transactions
             docs = store.collection(nameUser).where(u'ExpensePrice', u'>=', 0).get()
             for doc in docs:
                 tmpDict = (doc.to_dict())
                 lis2.append(tmpDict['ExpensePrice'])
-            b = sum(lis2)
+            b = sum(lis2) + price
+            outstand = 1000 - b #update outstanding
             # setting credit limit to $ 400 for simplicity
-            if b <= 400:
+            if outstand != 0:
+                data = {
+                    u'Date': date,
+                    u'ExpenseType': reason,
+                    u'ExpensePrice': price,
+                    u'OutStanding': outstand
+                }
                 store.collection(nameUser).add(data)
                 print("Transaction Successfull")
             else:
@@ -105,9 +105,18 @@ class CrudInAction(CrudBase):
                 print("Total number of transactions: {}".format(count))
                 docTot = store.collection(nameUser).document(u'total').get()
                 dataDict = docTot.to_dict()
-                print('Total credit available: {}'.format(dataDict['totVal']))
+                outBal = 1000 - dataDict['totVal']
+                print('Total outstanding balance: {}'.format(outBal))
             else:
                 docs = store.collection(nameUser).get()
+                for doc in docs:
+                    tmpDict = (doc.to_dict)
+                    x = (tmpDict['ExpensePrice'])
+                    y = 30 - (tmpDict['Date'])
+                    lineDivider = ('------------------------')
+                    print(lineDivider)
+
+
 
 
 
