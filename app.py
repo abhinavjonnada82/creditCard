@@ -60,55 +60,69 @@ class CrudInAction(CrudBase):
         if (actionOption == 'Make'):
 
             lis2 = []
-            date = input("Enter Date: \n")
+            date = int(input("Enter only date (03/dd/2019): \n"))
             reason = input("Enter your expense: \n")
             price = int(input("Enter Price: $ \n"))
 
             data = {
-                "Date": date,
-                "ExpenseType": reason,
-                "ExpensePrice": price,
+                u'Date': date,
+                u'ExpenseType': reason,
+                u'ExpensePrice': price,
             }
 
+            # Query to get prices of transactions
             docs = store.collection(nameUser).where(u'ExpensePrice', u'>=', 0).get()
             for doc in docs:
                 tmpDict = (doc.to_dict())
                 lis2.append(tmpDict['ExpensePrice'])
             b = sum(lis2)
+            # setting credit limit to $ 400 for simplicity
             if b <= 400:
                 store.collection(nameUser).add(data)
                 print("Transaction Successfull")
             else:
                 print("Insufficient Funds!")
+
+            # updating total value
             totData = {
-                u'totVal':b
+                u'totVal':b,
+                u'Date': date
             }
 
             store.collection(nameUser).document(u'total').set(totData)
 
 
         elif (actionOption == 'View'):
-            count = 0
-            docs = store.collection(nameUser).where(u'ExpensePrice', u'>=',0).get()
-            for doc in docs:
-                count = count + 1
-                print(doc.to_dict())
-                lineDivider = ('------------------------')
-                print(lineDivider)
-            print("Total number of transactions: {}".format(count))
-            docTot = store.collection(nameUser).document(u'total').get()
-            dataDict = docTot.to_dict()
-            print('Total credit available: {}'.format(dataDict['totVal']))
+            dateEntry = int(input("Enter only date (03/dd/2019): \n"))
+            if (dateEntry <= 29):
+                count = 0
+                docs = store.collection(nameUser).where(u'ExpensePrice', u'>=',0).get()
+                for doc in docs:
+                    count = count + 1
+                    print(doc.to_dict())
+                    lineDivider = ('------------------------')
+                    print(lineDivider)
+                print("Total number of transactions: {}".format(count))
+                docTot = store.collection(nameUser).document(u'total').get()
+                dataDict = docTot.to_dict()
+                print('Total credit available: {}'.format(dataDict['totVal']))
+            else:
+                docs = store.collection(nameUser).get()
+
+
 
 
         elif (actionOption == 'Pay'):
-            date = input("Enter Date: \n")
+            date = int(input("Enter only date (03/dd/2019): \n"))
             payment = int(input("Enter amount to be payed: $ \n"))
+
             docTot = store.collection(nameUser).document(u'total')
             dataDict = docTot.get().to_dict()
             totalCredit=(dataDict['totVal'])
             currentTotal = totalCredit - payment
-            docTot.update({u'totVal': currentTotal})
+            docTot.update({u'totVal': currentTotal, u'date': date})
+            print("Your outstanding balance is {}".format(currentTotal))
+
 
 
 # bridge function
