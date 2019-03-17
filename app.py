@@ -26,7 +26,8 @@ class HelperBase():
     def __init__(self, para):
         self.para = para
 
-    #helper function
+    #helper functions
+
     def responseHolderfun(self, actionOption, nameUser, user):
         responseHolder = input("Do you want to {} once more? Y/N ".format(actionOption))
         while True:
@@ -37,7 +38,6 @@ class HelperBase():
                 break
         openBridge(user)
 
-    # helper function
     def queryTotalDoc(self, nameUser):
         # Query for total Document
         docs = store.collection(nameUser).document(u'total')
@@ -124,54 +124,106 @@ class ActionCenter(ActionBase):
             holder.responseHolderfun(actionOption, nameUser, user)
 
 
+        # if (actionOption == 'View'):
+        #     dateEntry = int(input("Enter only date (03/dd/2019): \n"))
+        #     if (dateEntry == 30):
+        #     # if clause on 30th day
+        #         dataLis = [] # to hold list of transaction dates
+        #         interestAcc = [] # holds accured interest for transaction
+        #     # Loops over AutoID query and returns a dictionary
+        #     docs = store.collection(nameUser).where(u'Flag', u'==', True).get()
+        #     for doc in docs:
+        #         tmp = (doc.to_dict())
+        #         dataLis.append(tmp['Date'])
+        #     # updates dataLis
+        #         print(dataLis)
+        #         #tmp1 = holder.loopOverAutoID(nameUser) # method call to loop over below query
+        #     # calls in a query to get Outstanding balance and date from each transaction
+        #         docs = store.collection(nameUser).where(u'Flag', u'==', True).get()
+        #         for doc2 in docs:
+        #             tmp1 = (doc2.to_dict())
+        #             x= tmp1['OutStanding']
+        #             y= tmp1['Date']
+        #             print(x, y)
+        #             for i in range(len(dataLis)):
+        #                 # loops over dataLis to calculate interest rate for each transaction
+        #                 if i == 0 and dataLis[i] == y: # checks index position and compares date form the
+        #                     # dataLis and query above
+        #
+        #                     if len(dataLis) == 1: # for only single transactions in a month
+        #                         t = x * (0.35/365) * (30)
+        #                         interestAcc.append(t)
+        #                         break
+        #                     else: # first transaction in a month
+        #                         t = x * (0.35 / 365) * (30-dataLis[i+1])
+        #                         interestAcc.append(t)
+        #                         break
+        #                 # for last transactions
+        #                 elif i == len(dataLis)-1 and dataLis[i] == y:
+        #                     t = x * (0.35 / 365) * (30 - dataLis[i])
+        #                     interestAcc.append(t)
+        #                     break
+        #                 # for transactions inbetween months
+        #                 elif dataLis[i] == y:
+        #                     t = x * (0.35 / 365) * (dataLis[i+1]-dataLis[i])
+        #                     interestAcc.append(t)
+        #                     break
+        #             print(interestAcc)
+        #
+        #         outBalance = holder.printInterest(nameUser)
+        #         print("Intrest at end of 30th day is $ {}".format(sum(interestAcc) + outBalance))
+        #
+        #     else:
+        #         outBalance = holder.printInterest(nameUser)
+        #         print("Intrest on {} March 2019 is $ {}".format(dateEntry, outBalance))
+        #
+        #     holder = HelperBase("holder")
+        #     holder.responseHolderfun(actionOption, nameUser, user)
+    # issue with above view function!!, had to implement bottom!!
+
         if (actionOption == 'View'):
             dateEntry = int(input("Enter only date (03/dd/2019): \n"))
             if (dateEntry == 30):
-
-                dataLis = []
-                interestAcc = []
-
-                tmp = holder.loopOverAutoID(nameUser)
-                dataLis.append(tmp['Date'])
-
-                #tmp1 = holder.loopOverAutoID(nameUser)
-                docs = holder.queryAutoIDDoc(nameUser).where(u'Flag', u'==', True).get()
+                count = 0
+                lis = []
+                valIs = []
+                docs = store.collection(nameUser).where(u'Flag', u'==', True).get()
+                for doc in docs:
+                    tmp = (doc.to_dict())
+                    lis.append(tmp['Date'])
+                docs = store.collection(nameUser).where(u'Flag', u'==', True).get()
                 for doc2 in docs:
                     tmp1 = (doc2.to_dict())
-
-                    x= tmp1['OutStanding']
-                    y= tmp1['Date']
-                    for i in range(len(dataLis)):
-                        if i == 0 and dataLis[i] == y:
-                            if len(dataLis) == 1:
-                                t = x * (0.35/365) * (30)
-                                interestAcc.append(t)
+                    x = tmp1['OutStanding']
+                    y = tmp1['Date']
+                    for i in range(len(lis)):
+                        if i == 0 and lis[i] == y:
+                            if len(lis) == 1:
+                                t = x * (0.35 / 365) * (30)
+                                valIs.append(t)
                                 break
                             else:
-                                t = x * (0.35 / 365) * (30-dataLis[i+1])
-                                interestAcc.append(t)
+                                t = x * (0.35 / 365) * (30 - lis[i + 1])
+                                valIs.append(t)
                                 break
-                        elif i == len(dataLis)-1 and dataLis[i] == y:
-                            t = x * (0.35 / 365) * (30 - dataLis[i])
-                            interestAcc.append(t)
+                        elif i == len(lis) - 1 and lis[i] == y:
+                            t = x * (0.35 / 365) * (30 - lis[i])
+                            valIs.append(t)
                             break
-                        elif dataLis[i] == y:
-                            t = x * (0.35 / 365) * (dataLis[i+1]-dataLis[i])
-                            interestAcc.append(t)
+                        elif lis[i] == y:
+                            t = x * (0.35 / 365) * (lis[i + 1] - lis[i])
+                            valIs.append(t)
                             break
-                print(interestAcc)
 
-
-                outBalance = holder.printInterest(nameUser)
-                print("Intrest at end of 30th day is $ {}".format(sum(interestAcc) + outBalance))
-
+                docTot = store.collection(nameUser).document(u'total').get()
+                tmpDict = (docTot.to_dict())
+                outBal = tmpDict['OutStanding']
+                print("Intrest at end of 30th day is $ {}".format(sum(valIs) + outBal))
             else:
-                outBalance = holder.printInterest(nameUser)
-                print("Intrest on {} March 2019 is $ {}".format(dateEntry, outBalance))
-
-            holder = HelperBase("holder")
-            holder.responseHolderfun(actionOption, nameUser, user)
-
+                docs1 = store.collection(nameUser).document(u'total').get()
+                tmpDict = (docs1.to_dict())
+                outBal = tmpDict['OutStanding']
+                print("Intrest on {} March 2019 is $ {}".format(dateEntry, outBal))
 
         if (actionOption == 'Pay'):
             # for better contrast, I have directly used queries, instead of helper functions
