@@ -191,6 +191,7 @@ class ActionCenter(ActionBase):
                 for doc in docs:
                     tmp = (doc.to_dict())
                     lis.append(tmp['Date'])
+                lis = sorted(lis)
                 docs = store.collection(nameUser).where(u'Flag', u'==', True).get()
                 for doc2 in docs:
                     tmp1 = (doc2.to_dict())
