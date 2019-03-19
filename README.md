@@ -16,6 +16,10 @@ The software does the following:
 	Keep track of payments
 	
 	Provide the total outstanding balance as of any given day
+Next Steps:
+ 1.) Implement Try and Except
+ 2.) Unit Test
+ 3.) Dockerize
 
 Built using Python and Firebase.
 
