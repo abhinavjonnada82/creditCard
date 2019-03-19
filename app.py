@@ -8,7 +8,7 @@ from firebase_admin import credentials,firestore
 
 
 config = {
-  "apiKey": "AIzaSyAmkl4n9DuY5cTAUVKlZwomKQyIV3BY7Ms",
+ "apiKey": "----------",
   "authDomain": "taskcc.firebaseapp.com",
   "databaseURL": "https://taskcc.firebaseio.com",
   "projectId": "taskcc",
