@@ -19,13 +19,21 @@ The software does the following:
 Next Steps:
  1.) Implement Try and Except
  2.) Unit Test
- 3.) Dockerize
+
 
 Built using Python and Firebase.
 
 -> ArgParse, Firebase admin and Pyrebase modules
 
 -> Firebase for authentication and database
+
+To RUN:
+
+1.)  docker pull aj82/python-appcc:ccapr
+2.)  docker run -it aj82/python-appcc:ccapr python app.py -p <CMD>
+Replace <CMD> with Login or SignUp
+	
+                OR 
 
 1.) Setup a virtual environment
 
