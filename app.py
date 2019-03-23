@@ -225,6 +225,9 @@ class ActionCenter(ActionBase):
                 tmpDict = (docs1.to_dict())
                 outBal = tmpDict['OutStanding']
                 print("Intrest on {} March 2019 is $ {}".format(dateEntry, outBal))
+            
+            holder = HelperBase("holder")
+            holder.responseHolderfun(actionOption, nameUser, user)
 
         if (actionOption == 'Pay'):
             # for better contrast, I have directly used queries, instead of helper functions
