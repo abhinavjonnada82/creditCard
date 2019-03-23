@@ -23,9 +23,10 @@ Next Steps:
 
 Built using Python and Firebase.
 
--> ArgParse, Firebase admin and Pyrebase modules
+-> Firebase for authentication and Firestore database
 
--> Firebase for authentication and database
+Firebase authentication, lets the user create a/c. Firestore Database stores transactions, swipes, charges, payments.
+Python Script processes everything above!!
 
 To RUN:
 
