@@ -7,6 +7,12 @@ Credit card functions as follows: 
 	• Calculated interest becomes due at the close every 30 days after the account has been opened.
 	• e.g., asking for the total outstanding balance 15, 28, or 29 days after opening will give the outstanding balance, but asking for balance 30 days after opening will give the outstanding balance plus the accrued interest.
 
+Documentation:
+https://docs.google.com/document/d/1RCvG_ey3sE0B1RohtKj05ejy3vbdugh4YleSFdXrHU4/edit?usp=sharing
+
+User Stories:
+https://trello.com/b/8Gf4pgHA/task-credit-card
+
 The software does the following:
 	
 	Create an account (e.g. opening a new credit card); Achieved using by making an FireBase account
