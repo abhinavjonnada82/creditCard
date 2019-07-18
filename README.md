@@ -1,14 +1,34 @@
 <strong>
 # creditCard
 
+Documentation:
+https://docs.google.com/document/d/1RCvG_ey3sE0B1RohtKj05ejy3vbdugh4YleSFdXrHU4/edit?usp=sharing
+
 Credit card functions as follows: 
 	• Each card has an APR and Credit Limit.
 	• Interest is calculated daily, starting the day after the account is opened, at the close of each day.
 	• Calculated interest becomes due at the close every 30 days after the account has been opened.
 	• e.g., asking for the total outstanding balance 15, 28, or 29 days after opening will give the outstanding balance, but asking for balance 30 days after opening will give the outstanding balance plus the accrued interest.
 
-Documentation:
-https://docs.google.com/document/d/1RCvG_ey3sE0B1RohtKj05ejy3vbdugh4YleSFdXrHU4/edit?usp=sharing
+To RUN:
+
+1.)  docker pull aj82/python-appcc:ccapr
+
+2.)  docker run -it aj82/python-appcc:ccapr python app.py -p $CMD
+	
+Replace $CMD with Login or SignUp
+	
+                OR 
+
+1.) Setup a virtual environment
+
+2.) PIP install pyrebase, argparse, google-cloud-firestore and firebase-admin
+
+3.) Just install PyCharm IDE, open the folder does the above tasks automatically
+
+4.) Run python app.py -p SignUp or Login
+
+Sample User Login: m@m.com | password: test123
 
 User Stories:
 https://trello.com/b/8Gf4pgHA/task-credit-card
@@ -34,27 +54,6 @@ Built using Python and Firebase.
 Firebase authentication, lets the user create a/c. Firestore Database stores transactions, swipes, charges, payments.
 Python Script processes everything above!!
 
-To RUN:
-
-1.)  docker pull aj82/python-appcc:ccapr
-
-
-2.)  docker run -it aj82/python-appcc:ccapr python app.py -p $CMD
-	
-	
-Replace $CMD with Login or SignUp
-	
-                OR 
-
-1.) Setup a virtual environment
-
-2.) PIP install pyrebase, argparse, google-cloud-firestore and firebase-admin
-
-3.) Just install PyCharm IDE, open the folder does the above tasks automatically
-
-4.) Run python app.py -p SignUp or Login
-
-Sample User Login: m@m.com | password: test123
 
 Video Link: https://drive.google.com/open?id=1GaTnaqgYai_djEPMaLVxup6MAurzCcIa
 
