@@ -1,9 +1,6 @@
 <strong>
 # creditCard
 
-Documentation:
-https://docs.google.com/document/d/1RCvG_ey3sE0B1RohtKj05ejy3vbdugh4YleSFdXrHU4/edit?usp=sharing
-
 Credit card functions as follows: 
 	• Each card has an APR and Credit Limit.
 	• Interest is calculated daily, starting the day after the account is opened, at the close of each day.
